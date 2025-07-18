@@ -1,21 +1,25 @@
-"use server"
+"use server";
 
-import { CreateCategoryParams } from "@/types"
-import { handleError } from "../utils"
-import { connectToDatabase } from "../database"
-import Category from "../database/models/category.model"
+import { CreateCategoryParams } from "@/types";
+import { handleError } from "../utils";
+import { connectToDatabase } from "../database";
+import Category from "../database/models/category.model";
 
-export const createCategory = async ({ categoryName }: CreateCategoryParams) => {
+export const createCategory = async ({
+  categoryName,
+}: CreateCategoryParams) => {
   try {
     await connectToDatabase();
 
+    const existing = await Category.findOne({ name: categoryName });
+    if (existing) return existing;
     const newCategory = await Category.create({ name: categoryName });
 
     return JSON.parse(JSON.stringify(newCategory));
   } catch (error) {
-    handleError(error)
+    handleError(error);
   }
-}
+};
 
 export const getAllCategories = async () => {
   try {
@@ -25,6 +29,6 @@ export const getAllCategories = async () => {
 
     return JSON.parse(JSON.stringify(categories));
   } catch (error) {
-    handleError(error)
+    handleError(error);
   }
-}
+};

@@ -28,21 +28,24 @@ const populateEvent = (query: any) => {
 }
 
 // CREATE
-export async function createEvent({ userId, event, path }: CreateEventParams) {
+export async function createEvent({ clerkUserId, event, path }: { clerkUserId: string, event: any, path: string }) {
   try {
-    await connectToDatabase()
+    await connectToDatabase();
 
-    const organizer = await User.findById(userId)
-    if (!organizer) throw new Error('Organizer not found')
+    // 1. Find Mongo user by clerkId
+    const organizer = await User.findOne({ clerkId: clerkUserId });
+    if (!organizer) throw new Error('Organizer not found');
 
-    const newEvent = await Event.create({ ...event, category: event.categoryId, organizer: userId })
-    revalidatePath(path)
+    // 2. Use Mongo _id as organizer for the Event!
+    const newEvent = await Event.create({ ...event, category: event.categoryId, organizer: organizer._id });
+    revalidatePath(path);
 
-    return JSON.parse(JSON.stringify(newEvent))
+    return JSON.parse(JSON.stringify(newEvent));
   } catch (error) {
-    handleError(error)
+    handleError(error);
   }
 }
+
 
 // GET ONE EVENT BY ID
 export async function getEventById(eventId: string) {
@@ -60,12 +63,12 @@ export async function getEventById(eventId: string) {
 }
 
 // UPDATE
-export async function updateEvent({ userId, event, path }: UpdateEventParams) {
+export async function updateEvent({ clerkUserId, event, path }: UpdateEventParams) {
   try {
     await connectToDatabase()
 
     const eventToUpdate = await Event.findById(event._id)
-    if (!eventToUpdate || eventToUpdate.organizer.toHexString() !== userId) {
+    if (!eventToUpdate || eventToUpdate.organizer.toHexString() !== clerkUserId) {
       throw new Error('Unauthorized or event not found')
     }
 

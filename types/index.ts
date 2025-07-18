@@ -17,7 +17,7 @@ export type UpdateUserParams = {
 
 // ====== EVENT PARAMS
 export type CreateEventParams = {
-  userId: string
+  clerkUserId: string  // <-- changed from userId
   event: {
     title: string
     description: string
@@ -34,7 +34,7 @@ export type CreateEventParams = {
 }
 
 export type UpdateEventParams = {
-  userId: string
+  clerkUserId: string  // <-- changed from userId
   event: {
     _id: string
     title: string
@@ -63,6 +63,7 @@ export type GetAllEventsParams = {
   page: number
 }
 
+// -- This refers to Mongo user _id: OK as is --
 export type GetEventsByUserParams = {
   userId: string
   limit?: number
@@ -109,13 +110,13 @@ export type CheckoutOrderParams = {
   eventId: string
   price: string
   isFree: boolean
-  buyerId: string
+  buyerId: string      // This must be the MongoDB user _id
 }
 
 export type CreateOrderParams = {
   stripeId: string
   eventId: string
-  buyerId: string
+  buyerId: string     // This must be the MongoDB user _id
   totalAmount: string
   createdAt: Date
 }
@@ -126,7 +127,7 @@ export type GetOrdersByEventParams = {
 }
 
 export type GetOrdersByUserParams = {
-  userId: string | null
+  userId: string | null  // This must be the MongoDB user _id
   limit?: number
   page: string | number | null
 }
