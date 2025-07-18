@@ -6,10 +6,10 @@ import { createUser, deleteUser, updateUser } from "@/lib/actions/user.actions";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET;
+  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SIGNING_SECRET;
   if (!WEBHOOK_SECRET) {
     throw new Error(
-      "Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local"
+      "Please add CLERK_WEBHOOK_SIGNING_SECRET from Clerk Dashboard to .env or your Vercel settings."
     );
   }
 
@@ -42,8 +42,7 @@ export async function POST(req: Request) {
   const eventType = evt.type;
 
   if (eventType === "user.created") {
-    const { id, email_addresses, image_url, first_name, last_name, username } =
-      evt.data;
+    const { id, email_addresses, image_url, first_name, last_name, username } = evt.data;
     if (!id) return new Response("Missing Clerk user id", { status: 400 });
 
     const user = {
@@ -58,7 +57,9 @@ export async function POST(req: Request) {
     const newUser = await createUser(user);
 
     if (newUser) {
-      const client = await clerkClient();
+      // TEMPORARY WORKAROUND for Clerk client type bug:
+      // @ts-ignore
+      const client = await (clerkClient as any)();
       await client.users.updateUserMetadata(id, {
         publicMetadata: { userId: newUser._id.toString() },
       });

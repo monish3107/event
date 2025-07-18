@@ -5,20 +5,24 @@ import { getOrdersByUser } from '@/lib/actions/order.actions'
 import { IOrder } from '@/lib/database/models/order.model'
 import { SearchParamProps } from '@/types'
 import { auth } from '@clerk/nextjs/server'
+import User from '@/lib/database/models/user.model'
 import Link from 'next/link'
 import React from 'react'
-import User from '@/lib/database/models/user.model'
 
-const ProfilePage = async ({ searchParams }: SearchParamProps) => {
+export default async function Page({
+  params,
+  searchParams
+}: {
+  params: Promise<{ id: string }>,
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
   const sp = await searchParams
-
-  // 🟢 Next.js 15+ Clerk: must await auth()
-  const { sessionClaims } = await auth()
-  const clerkUserId = sessionClaims?.userId as string
+  const { sessionClaims } = await auth();
+  const clerkUserId = sessionClaims?.userId as string;
 
   // Map Clerk userId to Mongo user _id
   const mongoUser = await User.findOne({ clerkId: clerkUserId })
-  const userId = mongoUser?._id.toString() // Use MongoDB _id!
+  const userId = mongoUser?._id.toString()
 
   const ordersPage = Number(sp?.ordersPage) || 1;
   const eventsPage = Number(sp?.eventsPage) || 1;
@@ -81,5 +85,3 @@ const ProfilePage = async ({ searchParams }: SearchParamProps) => {
     </>
   )
 }
-
-export default ProfilePage

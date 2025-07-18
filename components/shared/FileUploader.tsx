@@ -1,10 +1,8 @@
 'use client'
 
 import { useCallback, Dispatch, SetStateAction } from 'react'
-// FIX: use FileWithPath only from 'react-dropzone' (optional), or just use File
 import { useDropzone } from 'react-dropzone'
 import { generateClientDropzoneAccept } from 'uploadthing/client'
-
 import { Button } from '@/components/ui/button'
 import { convertFileToUrl } from '@/lib/utils'
 
@@ -15,7 +13,6 @@ type FileUploaderProps = {
 }
 
 export function FileUploader({ imageUrl, onFieldChange, setFiles }: FileUploaderProps) {
-  // Accept File[] instead of FileWithPath[]
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setFiles(acceptedFiles)
     onFieldChange(convertFileToUrl(acceptedFiles[0]))

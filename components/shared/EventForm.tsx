@@ -52,25 +52,21 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
 
     if(files.length > 0) {
       const uploadedImages = await startUpload(files)
-
-      if(!uploadedImages) {
-        return
-      }
-
-      uploadedImageUrl = uploadedImages[0].url
+      if(!uploadedImages) return;
+      uploadedImageUrl = uploadedImages[0].url;
     }
 
     if(type === 'Create') {
       try {
         const newEvent = await createEvent({
           event: { ...values, imageUrl: uploadedImageUrl },
-          clerkUserId: userId,      // <--- FIXED!
+          clerkUserId: userId,        // FIXED: must match backend/type
           path: '/profile'
-        })
+        });
 
         if(newEvent) {
           form.reset();
-          router.push(`/events/${newEvent._id}`)
+          router.push(`/events/${newEvent._id}`);
         }
       } catch (error) {
         console.log(error);
@@ -79,20 +75,20 @@ const EventForm = ({ userId, type, event, eventId }: EventFormProps) => {
 
     if(type === 'Update') {
       if(!eventId) {
-        router.back()
+        router.back();
         return;
       }
 
       try {
         const updatedEvent = await updateEvent({
-          clerkUserId: userId,      // <--- FIXED!
+          clerkUserId: userId,        // FIXED: must match backend/type
           event: { ...values, imageUrl: uploadedImageUrl, _id: eventId },
           path: `/events/${eventId}`
-        })
+        });
 
         if(updatedEvent) {
           form.reset();
-          router.push(`/events/${updatedEvent._id}`)
+          router.push(`/events/${updatedEvent._id}`);
         }
       } catch (error) {
         console.log(error);
