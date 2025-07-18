@@ -7,17 +7,24 @@ import { SearchParamProps } from '@/types'
 import { auth } from '@clerk/nextjs/server'
 import Link from 'next/link'
 import React from 'react'
+import User from '@/lib/database/models/user.model'
 
 const ProfilePage = async ({ searchParams }: SearchParamProps) => {
-  const { sessionClaims } = auth();
-  const userId = sessionClaims?.userId as string;
+  const sp = await searchParams
 
-  const ordersPage = Number(searchParams?.ordersPage) || 1;
-  const eventsPage = Number(searchParams?.eventsPage) || 1;
+  // 🟢 Next.js 15+ Clerk: must await auth()
+  const { sessionClaims } = await auth()
+  const clerkUserId = sessionClaims?.userId as string
 
-  const orders = await getOrdersByUser({ userId, page: ordersPage})
+  // Map Clerk userId to Mongo user _id
+  const mongoUser = await User.findOne({ clerkId: clerkUserId })
+  const userId = mongoUser?._id.toString() // Use MongoDB _id!
 
-  const orderedEvents = orders?.data.map((order: IOrder) => order.event) || [];
+  const ordersPage = Number(sp?.ordersPage) || 1;
+  const eventsPage = Number(sp?.eventsPage) || 1;
+
+  const orders = await getOrdersByUser({ userId, page: ordersPage })
+  const orderedEvents = orders?.data.map((order: IOrder) => order.event) || []
   const organizedEvents = await getEventsByUser({ userId, page: eventsPage })
 
   return (

@@ -1,26 +1,26 @@
-import CategoryFilter from '@/components/shared/CategoryFilter';
+import CategoryFilter from '@/components/shared/CategoryFilter'
 import Collection from '@/components/shared/Collection'
-import Search from '@/components/shared/Search';
+import Search from '@/components/shared/Search'
 import { Button } from '@/components/ui/button'
-import { getAllEvents } from '@/lib/actions/event.actions';
-import { SearchParamProps } from '@/types';
+import { getAllEvents } from '@/lib/actions/event.actions'
+import { SearchParamProps } from '@/types'
 import Image from 'next/image'
 import Link from 'next/link'
 
-// Add this line right below your imports
-export const dynamic = 'force-dynamic';
+export const dynamic = 'force-dynamic'
 
 export default async function Home({ searchParams }: SearchParamProps) {
-  searchParams = await searchParams;
-  const page = Number(searchParams?.page || 1);
-  const searchText = (searchParams?.query || '') as string;
-  const category = (searchParams?.category || '') as string;
+  const sp = await searchParams // Await searchParams, not assign
+
+  const page = Number(sp?.page || 1)
+  const searchText = (sp?.query || '') as string
+  const category = (sp?.category || '') as string
 
   const events = await getAllEvents({
     query: searchText,
     category,
     page,
-    limit: 6
+    limit: 6,
   })
 
   return (
