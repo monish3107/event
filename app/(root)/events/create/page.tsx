@@ -1,9 +1,8 @@
 import EventForm from "@/components/shared/EventForm"
 import { auth } from "@clerk/nextjs/server";
 
-const CreateEvent = () => {
-  const { sessionClaims } = auth();
-
+const CreateEvent = async () => {
+  const { sessionClaims } = await auth();
   const userId = sessionClaims?.userId as string;
 
   return (
@@ -16,7 +15,7 @@ const CreateEvent = () => {
         <EventForm userId={userId} type="Create" />
       </div>
     </>
-  )
+  );
 }
 
 export default CreateEvent
